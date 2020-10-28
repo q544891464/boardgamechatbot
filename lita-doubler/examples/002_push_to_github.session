@@ -1,0 +1,25 @@
+$ git add .
+$ git commit -m "Add everything for first push to GitHub"
+[master (root-commit) 3cd0382] Add everything for first push to GitHub
+ 22 files changed, 298 insertions(+)
+
+ create mode 100644 .travis.yml
+ create mode 100644 Gemfile
+ create mode 100644 Gemfile.lock
+ create mode 100644 LICENSE
+ create mode 100644 README.md
+ create mode 100644 Rakefile
+
+... skipping list of files for brevity ...
+
+ create mode 100644 spec/lita/handlers/doubler_spec.rb
+ create mode 100644 spec/spec_helper.rb
+$ git push
+Counting objects: 33, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (28/28), done.
+Writing objects: 100% (33/33), 18.01 KiB | 4.50 MiB/s, done.
+Total 33 (delta 4), reused 0 (delta 0)
+remote: Resolving deltas: 100% (4/4), done.
+To github.com:dpritchett/lita-doubler.git
+ * [new branch]      master -> master

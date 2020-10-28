@@ -1,0 +1,22 @@
+$ vi lita-doubler.gemspec
+$ bundle
+fatal: Not a git repository (or any of the parent directories): .git
+Fetching gem metadata from https://rubygems.org/........
+Fetching gem metadata from https://rubygems.org/.
+Resolving dependencies...
+
+... skipping gem install manifest for brevity ...
+
+Bundle complete! 8 Gemfile dependencies, 40 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+$ bundle exec lita
+fatal: Not a git repository (or any of the parent directories): .git
+Type "exit" or "quit" to end the session.
+Lita > lita help
+Lita: help
+  - Lists help information for terms and command the robot will respond to.
+Lita: help COMMAND
+  - Lists help information for terms or commands that begin with COMMAND.
+Lita: info - Replies with the current version of Lita.
+Lita: users find SEARCH_TERM - Find a Lita user by ID, name, or mention name.
+Lita >
