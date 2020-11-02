@@ -42,9 +42,7 @@ GEM
       faye-websocket (>= 0.8.0)
       lita (>= 4.7.1)
       multi_json
-    lita-telegram (0.1.0)
       lita (>= 4.5)
-      telegram-bot-ruby
     multi_json (1.15.0)
     multipart-post (2.1.1)
     nio4r (2.5.4)
@@ -55,7 +53,6 @@ GEM
     redis (4.2.2)
     redis-namespace (1.8.0)
       redis (>= 3.0.4)
-    telegram-bot-ruby (0.13.0)
       faraday
       inflecto
       virtus
@@ -78,7 +75,6 @@ PLATFORMS
 DEPENDENCIES
   lita
   lita-slack
-  lita-telegram
 
 BUNDLED WITH
    2.1.2
