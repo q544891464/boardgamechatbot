@@ -34,7 +34,7 @@ Lita.configure do |config|
   end
 
   # slack adapter demands a value even in dev when we aren't using it...
-  config.adapters.slack.token = ENV.fetch('SLACK_TOKEN', '')
+  config.adapters.slack.token = ENV.fetch('SLACK_TOKEN', 'xoxb-1414985391718-1445564290800-lCFKnopsqVUuXJzE0FwD7B1f')
 
   ## Example: Set options for the chosen adapter.
   # config.adapter.username = "myname"
