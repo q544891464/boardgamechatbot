@@ -36,13 +36,15 @@ GEM
       rb-readline (>= 0.5)
       redis-namespace (>= 1.7)
       thor (>= 1.0)
+    lita-doubler (0.1.2)
+      lita (>= 4.7)
     lita-slack (1.8.0)
       eventmachine
       faraday
       faye-websocket (>= 0.8.0)
+      lita (>= 4.5)
       lita (>= 4.7.1)
       multi_json
-      lita (>= 4.5)
     multi_json (1.15.0)
     multipart-post (2.1.1)
     nio4r (2.5.4)
@@ -52,9 +54,9 @@ GEM
     rb-readline (0.5.5)
     redis (4.2.2)
     redis-namespace (1.8.0)
-      redis (>= 3.0.4)
       faraday
       inflecto
+      redis (>= 3.0.4)
       virtus
     thor (1.0.1)
     thread_safe (0.3.6)
@@ -74,6 +76,7 @@ PLATFORMS
 
 DEPENDENCIES
   lita
+  lita-doubler
   lita-slack
 
 BUNDLED WITH
