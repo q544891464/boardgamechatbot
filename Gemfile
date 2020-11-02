@@ -15,3 +15,4 @@ gem "lita"
 # gem 'telegram-bot'
 # gem "lita-telegram"
 gem 'lita-slack'
+gem 'lita-doubler'
