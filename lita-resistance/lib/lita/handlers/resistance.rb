@@ -111,7 +111,6 @@ module Lita
 
         resistance.each do |member|
           user = Lita::User.find_by_mention_name(member)
-          redit.set(user,"resistance")
           robot.send_message(Source.new(user: user),
                              render_template("resistance", { commander: commander,
                                                              bodyguard: bodyguard,
@@ -137,7 +136,7 @@ module Lita
         # Form teams
         spies = all_users.sample(@num_spies)
         resistance = all_users - spies
-
+redis.set("num_of_resistance",resistance.length)
         spy_specials = assign_spies(spies)
         assign_resistance(resistance, spies, spy_specials)
 
