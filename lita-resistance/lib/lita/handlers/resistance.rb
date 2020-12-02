@@ -111,7 +111,7 @@ module Lita
 
         resistance.each do |member|
           user = Lita::User.find_by_mention_name(member)
-          redit.set(user,'resistance')
+          redit.set(user,"resistance")
           robot.send_message(Source.new(user: user),
                              render_template("resistance", { commander: commander,
                                                              bodyguard: bodyguard,
