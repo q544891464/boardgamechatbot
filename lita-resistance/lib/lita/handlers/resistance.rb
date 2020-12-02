@@ -136,7 +136,7 @@ module Lita
         # Form teams
         spies = all_users.sample(@num_spies)
         resistance = all_users - spies
-        redis.set("Num_of_resistance","0")
+        redis.set("Num","666")
         spy_specials = assign_spies(spies)
         assign_resistance(resistance, spies, spy_specials)
 
