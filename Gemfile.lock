@@ -1,3 +1,9 @@
+PATH
+  remote: lita-resistance
+  specs:
+    lita-resistance (1.0.0)
+      lita (>= 4.6)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -38,8 +44,6 @@ GEM
       thor (>= 1.0)
     lita-doubler (0.1.2)
       lita (>= 4.7)
-    lita-resistance (1.0.0)
-      lita (>= 4.6)
     lita-slack (1.8.0)
       eventmachine
       faraday
@@ -79,7 +83,7 @@ PLATFORMS
 DEPENDENCIES
   lita
   lita-doubler
-  lita-resistance
+  lita-resistance!
   lita-slack
 
 BUNDLED WITH
