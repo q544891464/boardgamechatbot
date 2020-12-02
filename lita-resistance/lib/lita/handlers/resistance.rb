@@ -139,7 +139,7 @@ module Lita
         Lita.redis.set("Num","666")
         spy_specials = assign_spies(spies)
         assign_resistance(resistance, spies, spy_specials)
-
+numofresistance = redis.get("Num")
         leader = all_users.sample # Randomly pick a leader for the first round
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
         response.reply("resistance num:#{numofresistance}")
