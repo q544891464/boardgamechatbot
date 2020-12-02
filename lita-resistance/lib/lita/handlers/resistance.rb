@@ -142,6 +142,7 @@ module Lita
 
         leader = all_users.sample # Randomly pick a leader for the first round
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
+        response.reply("resistance num:#{numofresistance}")
       end
 
       Lita.register_handler(self)
