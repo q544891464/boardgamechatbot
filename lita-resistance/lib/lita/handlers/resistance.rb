@@ -158,8 +158,8 @@ module Lita
         numofresistance = redis.get("Num")
         leader = all_users.sample # Randomly pick a leader for the first round
         #test
-        test_user = Lita::User.find_by_mention_name(leader)
-        identity_of_leader = redis.get(test_user.id)
+
+        identity_of_leader = get_identity_of(leader)
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
         response.reply("leader的身份是:#{identity_of_leader}")
       end
@@ -170,6 +170,11 @@ module Lita
         redis.set(user_id,identity)
       end
 
+      def get_identity_of(user_name)
+        user = Lita::User.find_by_mention_name(user_name)
+        user_id = user.id
+        redis.get(user_id)
+      end
       Lita.register_handler(self)
     end
   end
