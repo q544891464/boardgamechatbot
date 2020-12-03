@@ -170,9 +170,14 @@ module Lita
       end
 
       def vote (response)
-        input_args = response.args.uniq
-        vote_character = input_args[0]
-        response.reply("投票"+vote_character[0])
+        if get_game_status != "0"
+          response.reply("游戏还未开始")
+        else
+          input_args = response.args.uniq
+          vote_character = input_args[0]
+          vote_result = vote_character[0] #取第一个字符为结果
+          response.reply("投票"+vote_character[0])
+        end
       end
 
       #在redis中按id记录身份
