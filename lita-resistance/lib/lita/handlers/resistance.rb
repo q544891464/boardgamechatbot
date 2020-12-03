@@ -143,7 +143,7 @@ module Lita
         end
       end
       def play(response)
-        set_game_status(0)
+        set_game_status("0")
         begin
           all_users = validate_input(response)
         rescue StandardError => error
@@ -165,7 +165,6 @@ module Lita
         identity_of_leader = get_identity_of(leader)
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
         #response.reply("leader的身份是:#{identity_of_leader}")
-        game_continue
         response.reply("游戏阶段:"+get_game_status)
       end
 
