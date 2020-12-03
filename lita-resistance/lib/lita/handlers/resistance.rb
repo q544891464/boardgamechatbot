@@ -6,7 +6,7 @@ module Lita
 
       route(/resistance [NCBSAFD]+ .+/, :play, command: true, help: {'resistance N|[CBSAFD] [users]' => 'Starts a game of resistance with the people you mention.'})
 
-      route(/vote [SF]/, :vote, command: true, help: {'vote S|F' => 'vote for mission success or failed.'})
+      route(/vote S|F/, :vote, command: true, help: {'vote S|F' => 'vote for mission success or failed.'})
 
       def help (response)
         response.reply(render_template("help"))
