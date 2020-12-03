@@ -214,7 +214,8 @@ module Lita
         response.reply("这个房间的id是#{room_id}")
         redis.set("room_id",room_id)
         this_room = Lita::Room.find_by_id(room_id)
-        robot.send_message(Source.new(Room: this_room),"hello")
+        response.reply("这个房间的name是#{this_room.name}")
+        robot.send_message(Source.new(room: this_room),"hello")
 
       end
 
