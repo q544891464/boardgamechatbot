@@ -182,6 +182,8 @@ module Lita
           #response.reply("投票"+mission_result)
           response.reply("当前任务进度"+get_mission_progress)
           response.reply("当前投票进度"+get_vote_progress)
+          #如果投票任务成功 投票进度+1 任务完成进度+1
+          #如果投票任务失败 投票进度+1 任务完成进度不变
           if mission_result == "S"
             mission_success
             vote_success
@@ -190,9 +192,19 @@ module Lita
           end
           response.reply("当前任务进度"+get_mission_progress)
           response.reply("当前投票进度"+get_vote_progress)
+          #如果所有投票的人都投成功 则任务成功
+          #有人没投成功 则任务失败
+          if is_vote_complete
+            if is_mission_complete
+              response.reply("第#{get_game_status}回合任务成功！")
+            else
+              response.reply("第#{get_game_status}回合任务失败！")
+            end
+          end
         end
       end
 
+      #测试用
       def test (response)
         set_mission_progress(0)
         set_vote_progress(0)
