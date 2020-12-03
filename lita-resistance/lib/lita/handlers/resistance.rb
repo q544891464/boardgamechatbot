@@ -88,6 +88,17 @@ module Lita
         spies.each do |member|
           user = Lita::User.find_by_mention_name(member)
           other_spies = spies.dup - [spy_specials[:blind_spy], member] # Don't mention Blind Spy or self
+          if member == spy_specials[:blind_spy]
+            record_identity(user,"blind_spy")
+          elsif member == spy_specials[:deep_cover]
+            record_identity(user,"deep_cover")
+          elsif member == spy_specials[:false_commander]
+            record_identity(user,"false_commander")
+          elsif member == spy_specials[:assassin]
+            record_identity(user,"assassin")
+          else
+            record_identity(user,"spy")
+          end
           robot.send_message(Source.new(user: user),
                              render_template('spy', { spy_specials: spy_specials,
                                                       other_spies: other_spies,
@@ -111,6 +122,13 @@ module Lita
 
         resistance.each do |member|
           user = Lita::User.find_by_mention_name(member)
+          if member == commander
+            record_identity(user,"commander")
+          elsif member == bodyguard
+            record_identity(user,"bodyguard")
+          else
+            record_identity(user,"resistance")
+          end
           robot.send_message(Source.new(user: user),
                              render_template("resistance", { commander: commander,
                                                              bodyguard: bodyguard,
@@ -120,10 +138,8 @@ module Lita
                                                              starter: @starter,
                                                              game_id: @game_id,
                                                              spy_specials: spy_specials }))
-
         end
       end
-
       def play(response)
         begin
           all_users = validate_input(response)
@@ -136,13 +152,22 @@ module Lita
         # Form teams
         spies = all_users.sample(@num_spies)
         resistance = all_users - spies
-        Lita.redis.set("Num","666")
+        #Lita.redis.set("Num","666")
         spy_specials = assign_spies(spies)
         assign_resistance(resistance, spies, spy_specials)
-numofresistance = redis.get("Num")
+        numofresistance = redis.get("Num")
         leader = all_users.sample # Randomly pick a leader for the first round
+        #test
+        test_user = Lita::User.find_by_mention_name(leader)
+        identity_of_leader = redis.get(test_user.id)
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
-        response.reply("resistance num:#{numofresistance}")
+        response.reply("leader的身份是:#{identity_of_leader}")
+      end
+
+      #在redis中按id记录身份
+      def record_identity(user, identity)
+        user_id = user.id
+        redis.set(user_id,identity)
       end
 
       Lita.register_handler(self)
