@@ -8,6 +8,7 @@ module Lita
 
       route(/mission S|F/, :mission, command: true, help: {'mission S|F' => 'vote for mission success or failed.'})
 
+      route(/test/, :test, command: true, help: {'test' => 'for test'})
       def help (response)
         response.reply(render_template("help"))
       end
@@ -178,12 +179,26 @@ module Lita
           input_args = response.args.uniq
           mission_character = input_args[0]
           mission_result = mission_character[0] #取第一个字符为结果
-          response.reply("投票"+mission_result)
+          #response.reply("投票"+mission_result)
           response.reply("当前任务进度"+get_mission_progress)
+          response.reply("当前投票进度"+get_vote_progress)
           if mission_result == "S"
             mission_success
+            vote_success
+          else
+            vote_success
           end
+          response.reply("当前任务进度"+get_mission_progress)
+          response.reply("当前投票进度"+get_vote_progress)
         end
+      end
+
+      def test (response)
+        set_mission_progress(0)
+        set_vote_progress(0)
+        set_game_status(1)
+        set_completed_mission(0)
+
       end
 
       #在redis中按id记录身份
@@ -249,17 +264,58 @@ module Lita
         end
       end
 
-      #任务成功 进度+1
+      #任务成功 任务进度+1
       def mission_success
         mission_progress = Integer(get_mission_progress)
         mission_progress += 1
         set_mission_progress(mission_progress)
-        response.reply("你的任务成功了！")
       end
 
-      #检查当前投票人数是否达到任务所需进度
-      def is_mission_complete
+      #设置已完成的任务数量
+      def set_completed_mission(completed_mission)
+        redis.set("completed_mission",completed_mission)
+      end
 
+      #获取已完成的任务数量
+      def get_completed_mission
+        redis.get("completed_mission")
+      end
+
+      #设置投票进程
+      def set_vote_progress(vote_progress)
+        redis.set("vote_progress",vote_progress)
+      end
+
+      #获取投票进程
+      def get_vote_progress
+        redis.get("vote_progress")
+      end
+
+      #投票成功 投票进度+1
+      def vote_success
+        vote_progress = Integer(get_vote_progress)
+        vote_progress += 1
+        set_vote_progress(vote_progress)
+      end
+
+      def is_vote_complete
+        if get_vote_progress == mission_total_progress(get_game_status)
+          true
+        else
+          false
+        end
+      end
+
+      # 任务是否完成
+      # 检查当前完成任务人数是否达到任务所需进度
+      def is_mission_complete
+        if get_mission_progress == mission_total_progress(get_game_status)
+          set_mission_progress(0)
+          true
+        else
+          set_mission_progress(0)
+          false
+        end
       end
 
 
