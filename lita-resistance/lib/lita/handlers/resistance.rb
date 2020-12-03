@@ -165,6 +165,7 @@ module Lita
         identity_of_leader = get_identity_of(leader)
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
         #response.reply("leader的身份是:#{identity_of_leader}")
+        game_continue
         response.reply("游戏阶段:"+get_game_status)
       end
 
@@ -207,7 +208,7 @@ module Lita
 
       #游戏进入下一阶段 game_status +1
       def game_continue
-        game_status = get_game_status
+        game_status = Integer(get_game_status)
         redis.set("game_status",game_status+1)
       end
 
