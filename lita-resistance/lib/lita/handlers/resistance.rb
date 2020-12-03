@@ -6,6 +6,8 @@ module Lita
 
       route(/resistance [NCBSAFD]+ .+/, :play, command: true, help: {'resistance N|[CBSAFD] [users]' => 'Starts a game of resistance with the people you mention.'})
 
+      route(/vote [SF]/, :vote, command: true, help: {'vote S|F' => 'vote for mission success or failed.'})
+
       def help (response)
         response.reply(render_template("help"))
       end
@@ -164,17 +166,26 @@ module Lita
         response.reply("leader的身份是:#{identity_of_leader}")
       end
 
+      def vote (response)
+        input_args = response.args.uniq
+        vote_character = input_args[0]
+        response.reply("投票"+vote_character)
+      end
+
       #在redis中按id记录身份
       def record_identity(user, identity)
         user_id = user.id
         redis.set(user_id,identity)
       end
 
+      #按用户名获取身份
       def get_identity_of(user_name)
         user = Lita::User.find_by_mention_name(user_name)
         user_id = user.id
         redis.get(user_id)
       end
+
+
       Lita.register_handler(self)
     end
   end
