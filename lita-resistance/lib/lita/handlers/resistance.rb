@@ -6,7 +6,7 @@ module Lita
 
       route(/resistance [NCBSAFD]+ .+/, :play, command: true, help: {'resistance N|[CBSAFD] [users]' => 'Starts a game of resistance with the people you mention.'})
 
-      route(/vote S|F/, :vote, command: true, help: {'vote S|F' => 'vote for mission success or failed.'})
+      route(/mission S|F/, :mission, command: true, help: {'mission S|F' => 'vote for mission success or failed.'})
 
       def help (response)
         response.reply(render_template("help"))
@@ -143,7 +143,8 @@ module Lita
         end
       end
       def play(response)
-        set_game_status(0)
+        #set_game_status(0)
+        set_mission_progress(0)
         begin
           all_users = validate_input(response)
         rescue StandardError => error
@@ -169,14 +170,18 @@ module Lita
         response.reply("游戏阶段:"+get_game_status)
       end
 
-      def vote (response)
-        if get_game_status != "0"
+      #投票阶段
+      def mission (response)
+        if get_game_status == "0"
           response.reply("游戏还未开始")
         else
           input_args = response.args.uniq
-          vote_character = input_args[0]
-          vote_result = vote_character[0] #取第一个字符为结果
-          response.reply("投票"+vote_character[0])
+          mission_character = input_args[0]
+          mission_result = mission_character[0] #取第一个字符为结果
+          response.reply("投票"+mission_result)
+          if mission_result == "S"
+            mission_success
+          end
         end
       end
 
@@ -194,8 +199,7 @@ module Lita
       end
 
       #设置游戏状态
-      # -1：游戏未开始
-      # 0：游戏开局
+      # 0：游戏未开始
       # 1：发牌结束 可以投票 第一回合
       # 2：第二回合
       # 3：第三回合
@@ -216,6 +220,47 @@ module Lita
         game_status = Integer(get_game_status)
         redis.set("game_status",game_status+1)
       end
+
+      #设置投票进程
+      def set_mission_progress(progress)
+        redis.set("mission_progress",progress)
+      end
+
+      #获取投票进程
+      def get_mission_progress
+        redis.get("mission_progress")
+      end
+
+      # 获取当前任务需要的总进度
+      # 五个人游戏的情况下 每回合任务需要的进度分别为：2-3-2-3-3
+      # 更多人游戏的情况可以之后再做
+      def mission_total_progress(game_status)
+        if game_status == "1"
+          2
+        elsif game_status == "2"
+          3
+        elsif game_status == "3"
+          2
+        elsif game_status == "4"
+          3
+        elsif game_status == "5"
+          3
+        end
+      end
+
+      #任务成功 进度+1
+      def mission_success
+        mission_progress = Integer(get_mission_progress)
+        mission_progress += 1
+        set_mission_progress(mission_progress)
+        response.reply("你的任务成功了！")
+      end
+
+      #检查当前投票人数是否达到任务所需进度
+      def is_mission_complete
+
+      end
+
 
       Lita.register_handler(self)
     end
