@@ -143,7 +143,7 @@ module Lita
         end
       end
       def play(response)
-        set_game_status("0")
+        set_game_status(0)
         begin
           all_users = validate_input(response)
         rescue StandardError => error
