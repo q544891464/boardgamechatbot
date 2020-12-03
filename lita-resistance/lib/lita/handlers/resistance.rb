@@ -264,15 +264,15 @@ module Lita
       # 更多人游戏的情况可以之后再做
       def mission_total_progress(game_status)
         if game_status == "1"
-          2
+          "2"
         elsif game_status == "2"
-          3
+          "3"
         elsif game_status == "3"
-          2
+          "2"
         elsif game_status == "4"
-          3
+          "3"
         elsif game_status == "5"
-          3
+          "3"
         end
       end
 
