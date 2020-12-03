@@ -143,6 +143,7 @@ module Lita
         end
       end
       def play(response)
+        set_game_status(0)
         begin
           all_users = validate_input(response)
         rescue StandardError => error
@@ -163,13 +164,15 @@ module Lita
 
         identity_of_leader = get_identity_of(leader)
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
-        response.reply("leader的身份是:#{identity_of_leader}")
+        #response.reply("leader的身份是:#{identity_of_leader}")
+        game_continue
+        response.reply("游戏阶段:"+get_game_status)
       end
 
       def vote (response)
         input_args = response.args.uniq
         vote_character = input_args[0]
-        response.reply("投票"+vote_character)
+        response.reply("投票"+vote_character[0])
       end
 
       #在redis中按id记录身份
@@ -185,6 +188,29 @@ module Lita
         redis.get(user_id)
       end
 
+      #设置游戏状态
+      # -1：游戏未开始
+      # 0：游戏开局
+      # 1：发牌结束 可以投票 第一回合
+      # 2：第二回合
+      # 3：第三回合
+      # 4：第四回合
+      # 5：第五回合
+      # 99：预留
+      def set_game_status(status)
+        redis.set("game_status",status)
+      end
+
+      #获取游戏状态
+      def get_game_status
+        redis.get("game_status")
+      end
+
+      #游戏进入下一阶段 game_status +1
+      def game_continue
+        game_status = get_game_status
+        redis.set("game_status",game_status+1)
+      end
 
       Lita.register_handler(self)
     end
