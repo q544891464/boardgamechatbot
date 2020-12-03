@@ -3,22 +3,23 @@
 
 <% if @member == @commander %>
 You are the Commander, a member of the Resistance.
-
+你是一个指挥官，抵抗者中的一员
 <% if @spy_specials[:deep_cover].nil? %>
-The spies are: @<%= @commander_visible.join(' @') %>.
+The spies are: 间谍们是：@<%= @commander_visible.join(' @') %>.
 <% else %>
-The spies, excluding Deep Cover, are: @<%= @commander_visible.join(' @') %>.
+The spies, excluding Deep Cover, are:除潜藏者以外的间谍们： @<%= @commander_visible.join(' @') %>.
 <% end %>
 <% elsif @member == @bodyguard %>
 You are the Bodyguard, a member of the Resistance.
-
+你是一个守卫，抵抗者中的一员
 <% if !@commander.nil? && !@spy_specials[:false_commander].nil? %>
-  The Commander and False Commander, in random order, are: @<%= @bodyguard_visible.join(' @')%>.
+  The Commander and False Commander, in random order, are:指挥官和假指挥官在他们之中： @<%= @bodyguard_visible.join(' @')%>.
 <% elsif !@commander.nil? && @spy_specials[:false_commander].nil? %>
-  The Commander is @<%= @bodyguard_visible[0] %>
+  The Commander is 指挥官是 @<%= @bodyguard_visible[0] %>
 <% elsif @commander.nil? && !@spy_specials[:false_commander].nil? %>
-  The False Commander is @<%= @bodyguard_visible[0] %>
+  The False Commander is 假指挥官是 @<%= @bodyguard_visible[0] %>
 <% end %>
 <% else %>
 You are a regular member of the Resistance.
+你是抵抗者中的普通一员
 <% end %>
