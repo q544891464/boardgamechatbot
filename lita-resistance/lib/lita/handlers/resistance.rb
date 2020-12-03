@@ -179,6 +179,7 @@ module Lita
           mission_character = input_args[0]
           mission_result = mission_character[0] #取第一个字符为结果
           response.reply("投票"+mission_result)
+          response.reply("当前任务进度"+get_mission_progress)
           if mission_result == "S"
             mission_success
           end
