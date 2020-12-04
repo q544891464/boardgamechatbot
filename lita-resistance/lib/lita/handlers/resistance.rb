@@ -191,7 +191,10 @@ module Lita
           #test
           response.reply("当前任务进度"+get_mission_progress)
           response.reply("当前投票进度"+get_vote_progress)
-          broadcast("已投票/任务现进度/任务总进度:"+get_vote_progress+"/"+get_mission_progress+"/"+mission_total_progress(get_game_status))
+
+          voter_name = response.user.mention_name
+
+          broadcast("@#{voter_name}已投票，已投票/任务总进度:"+get_vote_progress+"/"+mission_total_progress(get_game_status))
           #如果所有投票的人都投成功 则任务成功
           #有人没投成功 则任务失败
           if is_vote_complete
@@ -210,6 +213,7 @@ module Lita
               elsif get_winner == "spy"
                 broadcast("抵抗者们没能完成三次任务，间谍们取得了胜利")
               end
+              game_initialize
             else
               broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
             end
