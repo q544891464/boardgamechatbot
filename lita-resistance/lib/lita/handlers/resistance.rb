@@ -269,6 +269,7 @@ module Lita
         set_vote_progress(0)
         set_game_status(1)
         set_completed_mission(0)
+        set_leader("weifanchen1997")
         #room_id = response.room.id
         #response.reply("这个房间的id是#{room_id}")
         #redis.set("room_id",room_id)
