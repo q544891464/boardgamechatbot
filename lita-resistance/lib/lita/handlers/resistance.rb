@@ -10,6 +10,10 @@ module Lita
 
       route(/assign .+/, :assign, command: true, help: {'assign [users]' => '指派执行任务的玩家'})
 
+      route(/agree/, :agree, command: true, help: {'agree' => '同意任务分配'})
+
+      route(/disagree/, :disagree, command: true, help: {'assign [users]' => '不同意任务分配'})
+
       route(/test/, :test, command: true, help: {'test' => 'for test'})
       def help (response)
         response.reply(render_template("help"))
@@ -155,9 +159,6 @@ module Lita
         end
         game_initialize(all_users)
 
-        #test
-        all_users_2 = redis.lrange("all_users",0,get_num_of_users)
-        response.reply("all_users_2内容为#{all_users_2}")
 
         @game_id = rand(999999)
         @starter = response.user.mention_name # Person who started the game
@@ -169,13 +170,12 @@ module Lita
         assign_resistance(resistance, spies, spy_specials)
         numofresistance = redis.get("Num")
         leader = all_users.sample # Randomly pick a leader for the first round
-        #test
 
         identity_of_leader = get_identity_of(leader)
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
         #response.reply("leader的身份是:#{identity_of_leader}")
         game_continue
-        robot.send_message(Source.new(room: get_room),"游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票")
+        robot.send_message(Source.new(room: get_room),"游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
       end
 
       #分配人员阶段
@@ -196,7 +196,7 @@ module Lita
         input_args = response.args.uniq
         assign_users = input_args[0, input_args.length] # User mention_names
 
-        response.reply("你输入的用户为：#{assign_users}")
+        #response.reply("你输入的用户为：#{assign_users}")
 
         if assign_users.length != Integer(mission_total_progress(get_game_status))
           response.reply("你需要#{mission_total_progress(get_game_status)}个人执行任务")
@@ -219,18 +219,75 @@ module Lita
           record_assign(member,1)
         end
 
-        broadcast("2.指派执行任务的玩家为@#{assign_users.join('@')}")
+        broadcast("指派执行任务的玩家为@#{assign_users.join('@')}")
+
+        set_agree_status(1) #开始投票
+
+        broadcast("请所有玩家为该任务分配投票 同意：agree 不同意：disagree")
 
       end
 
+
       #redis值：
-      # 初始化时记录玩家人数 number_of_users 记录所有玩家名字（list）
+      # 初始化时记录玩家人数 num_of_users 记录所有玩家名字（list）
       # username_agree_available 表示该用户是否有权利同意
-      # leader的权利默认为0 其他玩家初始为1
       # 每位玩家输入 agree 或 disagree 后权利变为0 计数total_count+1 count
       # total_count == 玩家人数 时结束计数
       # count 大于 total_count 一半时进入执行任务阶段
-      # 否则重新执行 设置leader以外的其他玩家available值为1
+      # 设置agree_status表示是否再投票阶段 mission阶段里加上该验证
+      # 否则重新执行 设置所有玩家available值为1 设置所有玩家 record_assign为0 即所有人都没有被指派
+
+      def agree (response)
+        if get_agree_status == 0
+          response.reply("你还不能投票（还未到投票同意阶段）")
+          raise("")
+        end
+        user = response.user.mention_name
+        set_user_agreeable(user,0) #失去投票机会
+        agree_count #同意票+1
+        total_count #总票数+1
+        broadcast("#{user}同意该任务分配")
+        agree_stage
+      end
+
+      def disagree (response)
+        if get_agree_status == 0
+          response.reply("你还不能投票（还未到投票同意阶段）")
+          raise("")
+        end
+        user = response.user.mention_name
+        set_user_agreeable(user,0) #失去投票机会
+        total_count #总票数+1
+        broadcast("#{user}不同意该任务分配")
+        agree_stage
+      end
+
+      #投票同意阶段
+      def agree_stage
+        if get_total_count == get_num_of_users
+          if get_agree_count > get_total_count/2 #如果半数以上同意
+            set_agree_status(0) #不可以再投票/投票结束
+            get_all_users.each do|member| #每个人恢复投票权力
+              set_user_agreeable(member,1)
+            end
+            set_agree_count(0)  #票数清零
+            set_total_count(0)  #票数清零
+            broadcast("该任务分配已被半数以上同意，请任务执行者执行任务")
+          else
+            #如果没到半数以上同意
+            set_agree_status(0) #不可以再投票/投票结束
+            #每个人恢复投票权力
+            # 所有人都取消指派
+            get_all_users.each do|member|
+              set_user_agreeable(member,1)
+              record_assign(member,0)
+            end
+            set_agree_count(0)  #票数清零
+            set_total_count(0)  #票数清零
+            broadcast("该任务分配未被半数以上同意，请队长重新指派任务")
+          end
+        end
+      end
 
       #执行任务阶段
       def mission (response)
@@ -241,6 +298,11 @@ module Lita
           unless is_assign(user) #如果用户没被分配任务
             response.reply("你不能执行任务")
             raise("你不能执行任务")
+          end
+
+          if get_agree_status == 1  #如果投票仍在进行中
+            response.reply("投票未完成，你不能执行任务")
+            raise("投票未完成，你不能执行任务")
           end
           input_args = response.args.uniq
           mission_character = input_args[0]
@@ -310,15 +372,19 @@ module Lita
 
 
       def game_initialize(all_users)
-        set_mission_progress(0)
-        set_vote_progress(0)
-        set_completed_mission(0)
-        set_game_status(0)
-        set_num_of_users(all_users.length)
+        set_mission_progress(0) #设置执行任务阶段任务成功进度
+        set_vote_progress(0)  #设置执行任务阶段投票进度
+        set_completed_mission(0)  #设置已完成任务数量
+        set_game_status(0)  #设置游戏状态为0
+        set_num_of_users(all_users.length)  #设置玩家人数
+        set_agree_count(0)  #设置同意投票阶段同意票数
+        set_total_count(0)  #设置同意投票阶段总票数
+        set_agree_status(0) #设置同意投票阶段状态
         all_users.each do |member|
           record_assign(member,0)
-          redis.lpush("all_users",member)
-          broadcast("#{member}储存成功")
+          redis.lpush("all_users",member) #存所有人的名字
+          set_user_agreeable(member,1) #所有人可以投票
+          #broadcast("#{member}储存成功")
         end
       end
 
@@ -413,17 +479,17 @@ module Lita
         set_completed_mission(completed_mission)
       end
 
-      #设置投票进程
+      #设置投票进度 执行任务阶段
       def set_vote_progress(vote_progress)
         redis.set("vote_progress",vote_progress)
       end
 
-      #获取投票进程
+      #获取投票进程 执行任务阶段
       def get_vote_progress
         redis.get("vote_progress")
       end
 
-      #投票成功 投票进度+1
+      #投票成功 投票进度+1 执行任务阶段
       def vote_success
         vote_progress = Integer(get_vote_progress)
         vote_progress += 1
@@ -511,13 +577,77 @@ module Lita
         redis.get("leader")
       end
 
+      #设置玩家人数
       def set_num_of_users(num_of_users)
         redis.set("num_of_users",num_of_users)
       end
 
+      #获取玩家人数
       def get_num_of_users
-        redis.get("num_of_users")
+        Integer(redis.get("num_of_users"))
       end
+
+      #获取玩家列表
+      def get_all_users
+        redis.lrange("all_users",0,get_num_of_users-1)
+      end
+
+      #设置玩家是否可以投票同意 1为可以 0为不可以
+      def set_user_agreeable(user,agreeable)
+        redis.set(user+"_agreeable",agreeable)
+      end
+
+      #获取玩家是否可以投票同意
+      def get_user_agreeable(user)
+        Integer(redis.get(user+"_agreeable"))
+      end
+
+      #设置同意数 同意投票阶段
+      def set_agree_count(count)
+        redis.set("agree_count",count)
+      end
+
+      #获得同意数 同意投票阶段
+      def get_agree_count
+        Integer(redis.get("agree_count"))
+      end
+
+      #同意数+1 同意投票阶段
+      def agree_count
+        count = get_agree_count
+        count += 1
+        set_agree_count(count)
+      end
+
+      #设置同意投票阶段总投票数
+      def set_total_count(count)
+        redis.set("total_count",count)
+      end
+
+      #获得同意投票阶段总投票数
+      def get_total_count
+        Integer(redis.get("total_count",count))
+      end
+
+      #同意阶段总投票数+1
+      def total_count
+        total_agree_count = get_total_count
+        total_agree_count += 1
+        set_total_count(total_agree_count)
+      end
+
+      #设置同意投票阶段状态
+      # 0：不可以投票
+      # 1：投票进行中
+      def set_agree_status(status)
+        redis.set("agree_status",status)
+      end
+
+      #获取同意投票阶段状态
+      def get_agree_status
+        Integer(redis.get("agree_status"))
+      end
+
 
       Lita.register_handler(self)
     end
