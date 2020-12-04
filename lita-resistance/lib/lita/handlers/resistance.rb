@@ -147,12 +147,17 @@ module Lita
       end
       def play(response)
         #set_game_status(0)
-        game_initialize
+
         begin
           all_users = validate_input(response)
         rescue StandardError => error
           response.reply(error.to_s) and return
         end
+        game_initialize(all_users)
+
+        #test
+        all_users_2 = redis.lrange(0,get_num_of_users)
+        response.reply("参加游戏的玩家为#{all_users_2}")
 
         @game_id = rand(999999)
         @starter = response.user.mention_name # Person who started the game
@@ -176,7 +181,13 @@ module Lita
       #分配人员阶段
       def assign (response)
 
+        if get_game_status == "0" #执行任务者执行任务
+          response.reply("游戏还未开始")
+          raise("游戏还未开始")
+        end
+
         user = response.user.mention_name
+
         if get_leader != user
           response.reply("你不是队长，不能指派任务：")
           raise("你不是队长，不能指派任务：")
@@ -212,6 +223,15 @@ module Lita
 
       end
 
+      #redis值：
+      # 初始化时记录玩家人数 number_of_users 记录所有玩家名字（list）
+      # username_agree_available 表示该用户是否有权利同意
+      # leader的权利默认为0 其他玩家初始为1
+      # 每位玩家输入 agree 或 disagree 后权利变为0 计数total_count+1 count
+      # total_count == 玩家人数 时结束计数
+      # count 大于 total_count 一半时进入执行任务阶段
+      # 否则重新执行 设置leader以外的其他玩家available值为1
+
       #执行任务阶段
       def mission (response)
         if get_game_status == "0" #执行任务者执行任务
@@ -235,11 +255,13 @@ module Lita
             vote_success
           end
 
+          response.reply("投票成功")
           #test
           response.reply("当前任务进度"+get_mission_progress)
           response.reply("当前投票进度"+get_vote_progress)
 
           voter_name = response.user.mention_name
+          record_assign(voter_name,0)
 
           broadcast("@#{voter_name}已投票，已投票/任务总进度:"+get_vote_progress+"/"+mission_total_progress(get_game_status))
           #如果所有投票的人都投成功 则任务成功
@@ -260,7 +282,7 @@ module Lita
               elsif get_winner == "spy"
                 broadcast("抵抗者们没能完成三次任务，间谍们取得了胜利")
               end
-              game_initialize
+              set_game_status(0)
             else
               broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
             end
@@ -286,12 +308,19 @@ module Lita
 
       end
 
-      def game_initialize
+
+      def game_initialize(all_users)
         set_mission_progress(0)
         set_vote_progress(0)
         set_completed_mission(0)
         set_game_status(0)
+        set_num_of_users(all_users.length)
+        all_users.each do |member|
+          record_assign(member,0)
+          redis.lpush("all_users",member)
+        end
       end
+
 
 
       #在redis中按id记录身份
@@ -409,11 +438,6 @@ module Lita
         end
       end
 
-      #本回合是否已投过票
-      def has_voted
-        #todo
-        #最后再做，不然不好测试
-      end
 
       # 任务是否完成
       # 检查当前完成任务人数是否达到任务所需进度
@@ -484,6 +508,14 @@ module Lita
       #获取队长
       def get_leader
         redis.get("leader")
+      end
+
+      def set_num_of_users(num_of_users)
+        redis.set("num_of_users",num_of_users)
+      end
+
+      def get_num_of_users
+        redis.get("num_of_users")
       end
 
       Lita.register_handler(self)
