@@ -244,8 +244,11 @@ module Lita
         end
         response.reply("你能投票")
         user = response.user.mention_name
+        response.reply("你能投票1")
         set_user_agreeable(user,0) #失去投票机会
+        response.reply("你能投票2")
         agree_count #同意票+1
+        response.reply("你能投票3")
         total_count #总票数+1
         broadcast("#{user}同意该任务分配")
         agree_stage
