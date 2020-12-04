@@ -10,9 +10,9 @@ module Lita
 
       route(/assign .+/, :assign, command: true, help: {'assign [users]' => '指派执行任务的玩家'})
 
-      route(/agree/, :agree, command: true, help: {'agree' => '同意任务分配'})
+      route(/Y/, :agree, command: true, help: {'Y' => '同意任务分配'})
 
-      route(/disagree/, :disagree, command: true, help: {'disagree' => '不同意任务分配'})
+      route(/N/, :disagree, command: true, help: {'N' => '不同意任务分配'})
 
       route(/test/, :test, command: true, help: {'test' => 'for test'})
       def help (response)
@@ -242,13 +242,9 @@ module Lita
           response.reply("你还不能投票（还未到投票同意阶段）")
           raise("")
         end
-        response.reply("你能投票")
         user = response.user.mention_name
-        response.reply("你能投票1")
         set_user_agreeable(user,0) #失去投票机会
-        response.reply("你能投票2")
         agree_count #同意票+1
-        response.reply("你能投票3")
         total_count #总票数+1
         broadcast("#{user}同意该任务分配")
         agree_stage
