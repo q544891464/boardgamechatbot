@@ -145,7 +145,7 @@ module Lita
       end
       def play(response)
         #set_game_status(0)
-        set_mission_progress(0)
+        game_initialize
         begin
           all_users = validate_input(response)
         rescue StandardError => error
@@ -179,9 +179,6 @@ module Lita
           input_args = response.args.uniq
           mission_character = input_args[0]
           mission_result = mission_character[0] #取第一个字符为结果
-          #response.reply("投票"+mission_result)
-          response.reply("当前任务进度"+get_mission_progress)
-          response.reply("当前投票进度"+get_vote_progress)
           #如果投票任务成功 投票进度+1 任务完成进度+1
           #如果投票任务失败 投票进度+1 任务完成进度不变
           if mission_result == "S"
@@ -190,8 +187,11 @@ module Lita
           else
             vote_success
           end
+
+          #test
           response.reply("当前任务进度"+get_mission_progress)
           response.reply("当前投票进度"+get_vote_progress)
+          broadcast("已投票/任务现进度/任务总进度:"+get_vote_progress+"/"+get_mission_progress+"/"+mission_total_progress(get_game_status))
           #如果所有投票的人都投成功 则任务成功
           #有人没投成功 则任务失败
           if is_vote_complete
@@ -201,8 +201,18 @@ module Lita
             else
               robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务失败！")
             end
+
             game_continue
 
+            if is_game_over
+              if get_winner == "resistance"
+                broadcast("成功完成了三次任务,抵抗者取得了胜利")
+              elsif get_winner == "spy"
+                broadcast("抵抗者们没能完成三次任务，间谍们取得了胜利")
+              end
+            else
+              broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
+            end
           end
         end
       end
@@ -213,14 +223,22 @@ module Lita
         set_vote_progress(0)
         set_game_status(1)
         set_completed_mission(0)
-        room_id = response.room.id
-        response.reply("这个房间的id是#{room_id}")
-        redis.set("room_id",room_id)
-        this_room = Lita::Room.find_by_id(room_id)
-        response.reply("这个房间的name是#{this_room.name}")
-        broadcast("hello world")
+        #room_id = response.room.id
+        #response.reply("这个房间的id是#{room_id}")
+        #redis.set("room_id",room_id)
+        #this_room = Lita::Room.find_by_id(room_id)
+        #response.reply("这个房间的name是#{this_room.name}")
+        #broadcast("hello world")
 
       end
+
+      def game_initialize
+        set_mission_progress(0)
+        set_vote_progress(0)
+        set_completed_mission(0)
+        set_game_status(0)
+      end
+
 
       #在redis中按id记录身份
       def record_identity(user, identity)
@@ -255,15 +273,17 @@ module Lita
       #游戏进入下一阶段 game_status +1
       def game_continue
         game_status = Integer(get_game_status)
+        set_vote_progress(0)
+        set_mission_progress(0)
         redis.set("game_status",game_status+1)
       end
 
-      #设置投票进程
+      #设置任务进度
       def set_mission_progress(progress)
         redis.set("mission_progress",progress)
       end
 
-      #获取投票进程
+      #获取任务进度
       def get_mission_progress
         redis.get("mission_progress")
       end
