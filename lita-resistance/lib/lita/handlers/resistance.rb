@@ -175,6 +175,13 @@ module Lita
 
       #分配人员阶段
       def assign (response)
+
+        user = response.user.mention_name
+        if get_leader != user
+          response.reply("你不是队长，不能指派任务：")
+          raise("你不是队长，不能指派任务：")
+        end
+
         input_args = response.args.uniq
         assign_users = input_args[0, input_args.length] # User mention_names
 
@@ -459,6 +466,16 @@ module Lita
         else
           false
         end
+      end
+
+      #设置队长
+      def set_leader(leader)
+        redis.set("leader",leader)
+      end
+
+      #获取队长
+      def get_leader
+        redis.get("leader")
       end
 
       Lita.register_handler(self)
