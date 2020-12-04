@@ -179,16 +179,13 @@ module Lita
         assign_users = input_args[0, input_args.length] # User mention_names
 
         response.reply("你输入的用户为：#{assign_users}")
-
-        if assign_users.length != 2
-          #if assign_users.length != Integer(mission_total_progress(get_game_status))
-          #raise "你需要#{mission_total_progress(get_game_status)}个人执行任务"
-          raise "你需要2个人执行任务"
+        
+        if assign_users.length != Integer(mission_total_progress(get_game_status))
+          response.reply("你需要#{mission_total_progress(get_game_status)}个人执行任务")
+          raise "你需要#{mission_total_progress(get_game_status)}个人执行任务"
         end
         normalize_input!(assign_users)
-
-        broadcast("1.指派执行任务的玩家为#{assign_users}")
-
+        
         # Ensure all people are users.
         unknown_users = []
         assign_users.each do |username|
@@ -196,6 +193,7 @@ module Lita
           unknown_users.push(username) unless user
         end
         if unknown_users.any?
+          response.reply("他们不是用户: @#{unknown_users.join(' @')}")
           raise "他们不是用户: @#{unknown_users.join(' @')}"
         end
 
@@ -203,7 +201,7 @@ module Lita
           record_assign(member,1)
         end
 
-        broadcast("2.指派执行任务的玩家为#{assign_users[0]}")
+        broadcast("2.指派执行任务的玩家为#{assign_users}")
 
       end
 
