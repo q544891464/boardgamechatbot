@@ -318,6 +318,7 @@ module Lita
         all_users.each do |member|
           record_assign(member,0)
           redis.lpush("all_users",member)
+          broadcast("#{member}储存成功")
         end
       end
 
