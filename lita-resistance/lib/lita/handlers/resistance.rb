@@ -157,7 +157,7 @@ module Lita
 
         #test
         all_users_2 = redis.lrange(0,get_num_of_users)
-        response.reply("参加游戏的玩家为#{all_users_2}")
+        response.reply("all_users_2类型为#{all_users_2.class}")
 
         @game_id = rand(999999)
         @starter = response.user.mention_name # Person who started the game
