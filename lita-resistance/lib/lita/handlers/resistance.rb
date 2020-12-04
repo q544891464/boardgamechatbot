@@ -245,7 +245,9 @@ module Lita
         user = response.user.mention_name
         set_user_agreeable(user,0) #失去投票机会
         agree_count #同意票+1
+        response.reply("agree_count")
         total_count #总票数+1
+        response.reply("total_count")
         broadcast("#{user}同意该任务分配")
         agree_stage
       end
@@ -632,8 +634,11 @@ module Lita
       #同意阶段总投票数+1
       def total_count
         total_agree_count = get_total_count
+        response.reply("total_agree_count = get_total_count")
         total_agree_count += 1
+        response.reply("total_agree_count += 1")
         set_total_count(total_agree_count)
+
       end
 
       #设置同意投票阶段状态
