@@ -178,7 +178,9 @@ module Lita
         input_args = response.args.uniq
         assign_users = input_args[0, input_args.length - 1] # User mention_names
 
-        if assign_users.length != mission_total_progress(get_game_status)
+        response.reply("你输入的用户为：#{assign_users}")
+
+        if assign_users.length != Integer(mission_total_progress(get_game_status))
           raise "你需要#{mission_total_progress(get_game_status)}个人执行任务"
         end
         normalize_input!(assign_users)
@@ -199,7 +201,7 @@ module Lita
           record_assign(member,1)
         end
 
-        broadcast("2.指派执行任务的玩家为#{assign_users}")
+        broadcast("2.指派执行任务的玩家为#{assign_users[0]}")
 
       end
 
