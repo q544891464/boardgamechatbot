@@ -212,15 +212,20 @@ module Lita
 
       end
 
-      #投票阶段
+      #执行任务阶段
       def mission (response)
-        if get_game_status == "0"
+        if get_game_status == "0" #执行任务者执行任务
           response.reply("游戏还未开始")
-
-        else #执行任务者执行任务
+        else
+          user = response.user.mention_name
+          unless is_assign(user) #如果用户没被分配任务
+            response.reply("你不能执行任务")
+            raise("你不能执行任务")
+          end
           input_args = response.args.uniq
           mission_character = input_args[0]
           mission_result = mission_character[0] #取第一个字符为结果
+
           #如果投票任务成功 投票进度+1 任务完成进度+1
           #如果投票任务失败 投票进度+1 任务完成进度不变
           if mission_result == "S"
@@ -269,7 +274,9 @@ module Lita
         set_vote_progress(0)
         set_game_status(1)
         set_completed_mission(0)
-        set_leader("weifanchen1997")
+        record_assign("weifanchen1997",0)
+        #set_leader("weifanchen1997")
+
         #room_id = response.room.id
         #response.reply("这个房间的id是#{room_id}")
         #redis.set("room_id",room_id)
