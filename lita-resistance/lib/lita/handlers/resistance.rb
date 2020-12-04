@@ -6,7 +6,9 @@ module Lita
 
       route(/resistance [NCBSAFD]+ .+/, :play, command: true, help: {'resistance N|[CBSAFD] [users]' => 'Starts a game of resistance with the people you mention.'})
 
-      route(/mission S|F/, :mission, command: true, help: {'mission S|F' => 'vote for mission success or failed.'})
+      route(/mission S|F/, :mission, command: true, help: {'mission S|F' => '执行任务（成功或失败）.'})
+
+      route(/assign .+/, :assign, command: true, help: {'assign [users]' => '指派执行任务的玩家'})
 
       route(/test/, :test, command: true, help: {'test' => 'for test'})
       def help (response)
@@ -168,14 +170,45 @@ module Lita
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
         #response.reply("leader的身份是:#{identity_of_leader}")
         game_continue
-        robot.send_message(Source.new(room: get_room),"游戏阶段:第#{get_game_status}回合，请讨论并投票")
+        robot.send_message(Source.new(room: get_room),"游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票")
+      end
+
+      #分配人员阶段
+      def assign (response)
+        input_args = response.args.uniq
+        assign_users = input_args[0, input_args.length - 1] # User mention_names
+
+        if assign_users.length != mission_total_progress(get_game_status)
+          raise "你需要#{mission_total_progress(get_game_status)}个人执行任务"
+        end
+        normalize_input!(assign_users)
+
+        broadcast("1.指派执行任务的玩家为#{assign_users}")
+
+        # Ensure all people are users.
+        unknown_users = []
+        assign_users.each do |username|
+          user = Lita::User.find_by_mention_name(username)
+          unknown_users.push(username) unless user
+        end
+        if unknown_users.any?
+          raise "他们不是用户: @#{unknown_users.join(' @')}"
+        end
+
+        assign_users.each do |member|
+          record_assign(member,1)
+        end
+
+        broadcast("2.指派执行任务的玩家为#{assign_users}")
+
       end
 
       #投票阶段
       def mission (response)
         if get_game_status == "0"
           response.reply("游戏还未开始")
-        else
+
+        else #执行任务者执行任务
           input_args = response.args.uniq
           mission_character = input_args[0]
           mission_result = mission_character[0] #取第一个字符为结果
@@ -381,7 +414,7 @@ module Lita
       def is_game_over
         completed_mission = Integer(get_completed_mission)
         game_status = Integer(get_game_status)
-        if completed_mission >= 3 or game_status - completed_mission >= 3 or game_status > 5
+        if completed_mission >= 3 or game_status - completed_mission - 1 >= 3 or game_status > 5
           true
         else
           false
@@ -406,8 +439,24 @@ module Lita
         Lita::Room.find_by_id(room_id)
       end
 
+      #广播 - 在游戏房间广播
       def broadcast(string)
         robot.send_message(Source.new(room: get_room),string)
+      end
+
+      #记录玩家是否执行任务 1为可以 0为不可以
+      def record_assign(user,status)
+        redis.set(user+"_assign_status",status)
+      end
+
+      #判断玩家是否可以执行任务
+      def is_assign(user)
+        status = redis.get(user+"_assign_status")
+        if status == "1"
+          true
+        else
+          false
+        end
       end
 
       Lita.register_handler(self)

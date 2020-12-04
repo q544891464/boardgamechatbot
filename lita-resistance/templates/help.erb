@@ -1,29 +1,32 @@
 Commands:
-`lita resistance help` - 提供详细信息
+`lita resistance help` - 显示游戏帮助
 
-`lita resistance N [users]` - Assigns the roles of spy/resistance to users you mention, with no special characters.将间谍/抵抗者分配给你提到的玩家，无特殊身份
+`lita resistance N [users]` - 将间谍/抵抗者分配给你@的玩家，无特殊身份
 
-`lita resistance [CBSAFD] [users]` - Assigns special characters to the users mentioned, the remainder (if any) will receive 'vanilla' spy/resistance roles.将特殊角色分配给玩家
+`lita resistance [CBSAFD] [users]` - .将选择的特殊角色分配给玩家 C-指挥官 B-守卫 S-盲探 A-刺客 F-假指挥官 D-潜伏者，每种身份各一人，剩余玩家分配普通身份。身份的特殊功能以及推荐配置见下文。
 
-Special Characters:
-Note: The number of special characters chosen for each team must be less than the number of characters on that team.
+`lita mission S/F ` - 作为任务执行人员，选择成功执行任务（S）或者把任务搞砸（F）。好人方只能选择成功执行任务，间谍方都可以选择。
+特殊角色:
+注意：每一方的特殊身份角色数量必须少于那一队的人数。
 
-The number of spies is always (Players + 2)/3 rounded down.
+胜负判定：一局游戏一共设置5个任务，出现3个任务失败时，间谍方直接胜利，出现3个任务成功时，刺客如杀对指挥官，则间谍方胜利，否则好人胜利。
 
-Resistance:
-指挥官 (C) - Knows all spies except Deep Cover.你知道潜伏者以外的所有间谍
 
-守卫 (B) - Knows Commander and False Commander.你知道玩家中的指挥官与假指挥官
+抵抗组织阵营:
 
-Spies:
+指挥官 (C) - 游戏开始时你获知所有间谍都是谁（潜伏者除外）。
 
-盲探 (S) - Doesn't know the other spies. The other spies don't know Blind Spy.不认识其他间谍，其他间谍也不认识你
+守卫 (B) - 游戏开始时你知道指挥官是谁。
 
-刺客 (A) - If Resistance successfully completes 3 missions, Assassin can guess Commander. If Assassin is correct, Spies win.如果抵抗者完成了三次任务，刺客可以猜测谁是指挥官进行刺杀，如果刺杀对了，间谍胜利。
+间谍阵营:
 
-假指挥官 (F) - Appears as Commander to Bodyguard.对守卫而言你就是指挥官
+盲探 (S) - 不认识其他间谍，其他间谍也不认识你。
 
-潜伏者 (D) - Does not appear as spy to Commander. If played with Commander and without Assassin, can take Assassin's role.在指挥官眼里你不是间谍，如果有指挥官而没有刺客，你可以承担刺客的角色
+刺客 (A) - 如果抵抗者完成了三次任务，刺客可以猜测谁是指挥官进行刺杀，如果刺杀对了，间谍胜利。
+
+假指挥官 (F) - 可以骗过守卫的眼睛，在守卫眼里你是也指挥官。
+
+潜伏者 (D) - 在指挥官眼里你不是间谍。
 
 建议配置：
 5人：指挥官、守卫、抵抗者 vs 假指挥官、刺客 （CBFA）
@@ -32,3 +35,17 @@ Spies:
 8人：指挥官、守卫、抵抗者*3 vs 假指挥官、刺客、间谍 （CBFA）
 9人：指挥官、守卫、抵抗者*4 vs 假指挥官、刺客、潜伏者 （CBFAD）
 10人：指挥官、守卫、抵抗者*4 vs 假指挥官、刺客、潜伏者、盲探 （CBSAFD）
+
+游戏进程： 
+游戏开始阶段： 
+1、指挥官获知所有间谍的身份（潜伏者除外）。
+2、 间谍之间互相知晓身份（盲探除外）。
+3、 守卫获知指挥官（与假指挥官）身份。
+任务执行阶段： 
+1、 随机选择一个玩家担任队长，根据游戏进程与人数选定足够人数的队员（例如5人局的第一个任务需要2人执行）。 
+2、其余玩家讨论，并对于执行任务人选轮流发表意见，同意组队或反对组队。若半数以上玩家同意，则任务可以执行。等于或小于一半时任务延迟进行。
+3、延迟：任务被延迟后，不视为执行，可重新选择这个任务，但一局游戏任务只能出现4次延迟，此后队长无论如何选择队员，任务都必须执行。
+4、任务结果：任务执行时，所有队员从任务成功和失败中选择一个秘密投出，好人必须出成功，坏人可以选择出成功或失败。
+胜负判定阶段： 
+1、 出现三次任务失败时坏人直接胜利。
+2、 出现三次任务成功时，刺客确定一个玩家进行刺杀，如被刺杀的是指挥官，则坏人胜利，否则好人胜利。
