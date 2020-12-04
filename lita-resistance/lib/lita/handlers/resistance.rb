@@ -196,9 +196,9 @@ module Lita
           #有人没投成功 则任务失败
           if is_vote_complete
             if is_mission_complete
-              response.reply("第#{get_game_status}回合任务成功！")
+              robot.send_message(Source.new(room: get_room),"第#{get_game_status}回合任务成功！")
             else
-              response.reply("第#{get_game_status}回合任务失败！")
+              robot.send_message(Source.new(room: get_room),"第#{get_game_status}回合任务失败！")
             end
           end
         end
@@ -316,12 +316,19 @@ module Lita
         set_vote_progress(vote_progress)
       end
 
+      #投票是否完成
       def is_vote_complete
         if get_vote_progress == mission_total_progress(get_game_status)
           true
         else
           false
         end
+      end
+
+      #本回合是否已投过票
+      def has_voted
+        #todo
+        #
       end
 
       # 任务是否完成
@@ -334,6 +341,12 @@ module Lita
           set_mission_progress(0)
           false
         end
+      end
+
+      #获取当前游戏房间
+      def get_room
+        room_id = redis.get("room_id")
+        Lita::Room.find_by_id(room_id)
       end
 
 
