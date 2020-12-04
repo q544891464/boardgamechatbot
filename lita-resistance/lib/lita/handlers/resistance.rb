@@ -168,7 +168,7 @@ module Lita
         response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
         #response.reply("leader的身份是:#{identity_of_leader}")
         game_continue
-        response.reply("游戏阶段:"+get_game_status)
+        robot.send_message(Source.new(room: get_room),"游戏阶段:第#{get_game_status}回合，请讨论并投票")
       end
 
       #投票阶段
@@ -196,10 +196,13 @@ module Lita
           #有人没投成功 则任务失败
           if is_vote_complete
             if is_mission_complete
-              robot.send_message(Source.new(room: get_room),"第#{get_game_status}回合任务成功！")
+              robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务成功！")
+              mission_completed
             else
-              robot.send_message(Source.new(room: get_room),"第#{get_game_status}回合任务失败！")
+              robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务失败！")
             end
+            game_continue
+
           end
         end
       end
@@ -215,7 +218,7 @@ module Lita
         redis.set("room_id",room_id)
         this_room = Lita::Room.find_by_id(room_id)
         response.reply("这个房间的name是#{this_room.name}")
-        robot.send_message(Source.new(room: this_room),"hello")
+        broadcast("hello world")
 
       end
 
@@ -282,7 +285,7 @@ module Lita
         end
       end
 
-      #任务成功 任务进度+1
+      #投票任务成功 任务进度+1
       def mission_success
         mission_progress = Integer(get_mission_progress)
         mission_progress += 1
@@ -297,6 +300,13 @@ module Lita
       #获取已完成的任务数量
       def get_completed_mission
         redis.get("completed_mission")
+      end
+
+      #任务成功完成 已完成任务+1
+      def mission_completed
+        completed_mission = Integer(get_completed_mission)
+        completed_mission += 1
+        set_completed_mission(completed_mission)
       end
 
       #设置投票进程
@@ -328,7 +338,7 @@ module Lita
       #本回合是否已投过票
       def has_voted
         #todo
-        #
+        #最后再做，不然不好测试
       end
 
       # 任务是否完成
@@ -343,13 +353,38 @@ module Lita
         end
       end
 
+      #游戏是否结束
+      def is_game_over
+        completed_mission = Integer(get_completed_mission)
+        game_status = Integer(get_game_status)
+        if completed_mission >= 3 or game_status - completed_mission >= 3 or game_status > 5
+          true
+        else
+          false
+        end
+      end
+
+      #游戏胜者
+      # 已完成3任务抵抗者胜利
+      # 未完成3任务间谍方胜利
+      def get_winner
+        completed_mission = Integer(get_completed_mission)
+        if completed_mission >= 3
+          "resistance"
+        else
+          "spy"
+        end
+      end
+
       #获取当前游戏房间
       def get_room
         room_id = redis.get("room_id")
         Lita::Room.find_by_id(room_id)
       end
 
-
+      def broadcast(string)
+        robot.send_message(Source.new(room: get_room),string)
+      end
 
       Lita.register_handler(self)
     end
