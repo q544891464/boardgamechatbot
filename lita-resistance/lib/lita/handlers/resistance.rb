@@ -179,13 +179,13 @@ module Lita
         assign_users = input_args[0, input_args.length] # User mention_names
 
         response.reply("你输入的用户为：#{assign_users}")
-        
-        if assign_users.length != Integer(mission_total_progress(get_game_status))
-          response.reply("你需要#{mission_total_progress(get_game_status)}个人执行任务")
+
+        if assign_users.length != 2
+          response.reply("你需要2个人执行任务")
           raise "你需要#{mission_total_progress(get_game_status)}个人执行任务"
         end
         normalize_input!(assign_users)
-        
+
         # Ensure all people are users.
         unknown_users = []
         assign_users.each do |username|
