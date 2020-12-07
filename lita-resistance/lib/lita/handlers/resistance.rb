@@ -2,17 +2,17 @@ module Lita
   module Handlers
     class Resistance < Handler
 
-      route(/resistance help/, :help, command: true, help: {'resistance help' => 'Provides detailed help with Resistance commands.'})
+      route(/resistance help/, :help, command: true, help: {'resistance help' => '显示游戏帮助'})
 
-      route(/resistance [NCBSAFD]+ .+/, :play, command: true, help: {'resistance N|[CBSAFD] [users]' => 'Starts a game of resistance with the people you mention.'})
+      route(/resistance [NCBSAFD]+ .+/, :play, command: true, help: {'resistance N|[CBSAFD] [users]' => '将间谍/抵抗者分配给你@的玩家'})
 
       route(/mission S|F/, :mission, command: true, help: {'mission S|F' => '执行任务（成功或失败）.'})
 
       route(/assign .+/, :assign, command: true, help: {'assign [users]' => '指派执行任务的玩家'})
 
-      route(/Y/, :agree, command: true, help: {'Y' => '同意任务分配'})
+      route(/Yes/, :agree, command: true, help: {'Yes' => '同意任务分配'})
 
-      route(/N/, :disagree, command: true, help: {'N' => '不同意任务分配'})
+      route(/No/, :disagree, command: true, help: {'No' => '不同意任务分配'})
 
       route(/test/, :test, command: true, help: {'test' => 'for test'})
       def help (response)
@@ -159,7 +159,6 @@ module Lita
         end
         game_initialize(all_users)
 
-
         @game_id = rand(999999)
         @starter = response.user.mention_name # Person who started the game
         # Form teams
@@ -172,7 +171,7 @@ module Lita
         leader = all_users.sample # Randomly pick a leader for the first round
 
         identity_of_leader = get_identity_of(leader)
-        response.reply("Roles have been assigned to the selected people! This is game ID ##{@game_id}. @#{leader} will be leading off the first round.")
+        response.reply("身份已经分配完毕! 本场游戏的id为 ##{@game_id}. @#{leader} 将会成为第一回合的队长.")
         #response.reply("leader的身份是:#{identity_of_leader}")
         game_continue
         robot.send_message(Source.new(room: get_room),"游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
@@ -223,7 +222,7 @@ module Lita
 
         set_agree_status(1) #开始投票
 
-        broadcast("请所有玩家为该任务分配投票 同意：agree 不同意：disagree")
+        broadcast("请所有玩家为该任务分配投票 同意：Yes 不同意：No")
 
       end
 
@@ -238,7 +237,7 @@ module Lita
       # 否则重新执行 设置所有玩家available值为1 设置所有玩家 record_assign为0 即所有人都没有被指派
 
       def agree (response)
-        if get_agree_status == 0
+        if get_agree_status != 1
           response.reply("你还不能投票（还未到投票同意阶段）")
           raise("")
         end
@@ -253,7 +252,7 @@ module Lita
       end
 
       def disagree (response)
-        if get_agree_status == 0
+        if get_agree_status != 1
           response.reply("你还不能投票（还未到投票同意阶段）")
           raise("")
         end
