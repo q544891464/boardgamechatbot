@@ -17,4 +17,6 @@ gem "lita"
 gem 'lita-slack'
 gem 'lita-doubler'
 gem 'lita-whats-brad-eating'
+gem "lita-cleverbot-demo"
+gem "lita-task-scheduler"
 gem "lita-resistance",path: 'lita-resistance'
