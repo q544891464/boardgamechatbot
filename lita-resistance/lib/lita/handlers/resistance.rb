@@ -215,7 +215,7 @@ module Lita
         end
 
         assign_users.each do |member|
-          record_assign(member,1)
+          record_assign(member,1) #设置他们可以执行任务
         end
 
         broadcast("指派执行任务的玩家为@#{assign_users.join('@')}")
@@ -241,6 +241,7 @@ module Lita
           response.reply("你还不能投票（还未到投票同意阶段）")
           raise("")
         end
+        #todo 最后还需做投票权利的限制 目前一个人可以投多次票
         user = response.user.mention_name
         set_user_agreeable(user,0) #失去投票机会
         agree_count #同意票+1
@@ -256,6 +257,7 @@ module Lita
           response.reply("你还不能投票（还未到投票同意阶段）")
           raise("")
         end
+        #todo 最后还需做投票权利的限制 目前一个人可以投多次票
         user = response.user.mention_name
         set_user_agreeable(user,0) #失去投票机会
         total_count #总票数+1
@@ -273,7 +275,7 @@ module Lita
             end
             set_agree_count(0)  #票数清零
             set_total_count(0)  #票数清零
-            broadcast("该任务分配已被半数以上同意，请任务执行者执行任务")
+            broadcast("该任务分配已被半数以上同意，请任务执行者执行任务。指令：mission S|F(任务成功|任务失败)")
           else
             #如果没到半数以上同意
             set_agree_status(0) #不可以再投票/投票结束
@@ -324,7 +326,8 @@ module Lita
           response.reply("当前投票进度"+get_vote_progress)
 
           voter_name = response.user.mention_name
-          record_assign(voter_name,0)
+          #todo 测试需要将这行代码注释 目的是一个人可以执行多次任务
+          #record_assign(voter_name,0)
 
           broadcast("@#{voter_name}已投票，已投票/任务总进度:"+get_vote_progress+"/"+mission_total_progress(get_game_status))
           #如果所有投票的人都投成功 则任务成功
@@ -348,6 +351,7 @@ module Lita
               set_game_status(0)
             else
               broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
+              broadcast("游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
             end
           end
         end
@@ -382,7 +386,7 @@ module Lita
         set_total_count(0)  #设置同意投票阶段总票数
         set_agree_status(0) #设置同意投票阶段状态
         all_users.each do |member|
-          record_assign(member,0)
+          record_assign(member,0) #设置所有人不能执行任务
           redis.lpush("all_users",member) #存所有人的名字
           set_user_agreeable(member,1) #所有人可以投票
           #broadcast("#{member}储存成功")
