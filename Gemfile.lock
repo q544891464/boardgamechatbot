@@ -20,17 +20,12 @@ GEM
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     equalizer (0.0.11)
-    et-orbi (1.2.4)
-      tzinfo
     eventmachine (1.2.7)
     faraday (1.0.1)
       multipart-post (>= 1.2, < 3)
     faye-websocket (0.11.0)
       eventmachine (>= 0.12.0)
       websocket-driver (>= 0.5.1)
-    fugit (1.4.1)
-      et-orbi (~> 1.1, >= 1.1.8)
-      raabro (~> 1.4)
     http_router (0.11.2)
       rack (>= 1.0.0)
       url_mount (~> 0.2.1)
@@ -63,9 +58,6 @@ GEM
       lita (>= 4.5)
       lita (>= 4.7.1)
       multi_json
-    lita-task-scheduler (1.1.0)
-      lita (>= 4.7)
-      rufus-scheduler
     lita-whats-brad-eating (1.0.1)
       lita (>= 4.7)
       nokogiri
@@ -78,7 +70,6 @@ GEM
     oj (3.10.16)
     puma (5.0.2)
       nio4r (~> 2.0)
-    raabro (1.4.0)
     rack (2.2.3)
     rb-readline (0.5.5)
     redis (4.2.2)
@@ -87,12 +78,8 @@ GEM
       inflecto
       redis (>= 3.0.4)
       virtus
-    rufus-scheduler (3.6.0)
-      fugit (~> 1.1, >= 1.1.6)
     thor (1.0.1)
     thread_safe (0.3.6)
-    tzinfo (2.0.3)
-      concurrent-ruby (~> 1.0)
     url_mount (0.2.1)
       rack
     virtus (1.0.5)
@@ -113,7 +100,6 @@ DEPENDENCIES
   lita-doubler
   lita-resistance!
   lita-slack
-  lita-task-scheduler
   lita-whats-brad-eating
 
 BUNDLED WITH
