@@ -16,5 +16,5 @@ gem "lita"
 # gem "lita-telegram"
 gem 'lita-slack'
 gem 'lita-doubler'
-#gem 'lita-whats-brad-eating', path: 'lita-whats-brad-eating'
+gem 'lita-whats-brad-eating'
 gem "lita-resistance",path: 'lita-resistance'
