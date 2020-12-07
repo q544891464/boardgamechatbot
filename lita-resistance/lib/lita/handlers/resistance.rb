@@ -339,7 +339,7 @@ module Lita
             else
               robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务失败！")
             end
-            broadcast("本轮执行任务情况为：成功/失败  #{get_mission_progress}/#{mission_total_progress(get_game_status)-get_mission_progress}")
+            broadcast("本轮执行任务情况为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
 
             game_continue
 
