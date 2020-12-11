@@ -368,15 +368,19 @@ module Lita
           arg2 = response.args.uniq[2]
         end
 
+
         if input == "changeleader"
           change_leader
           response.reply("队长已改变，现任队长为#{get_leader}")
+          #测试指令reset
         elsif input == "reset"
           game_initialize(get_all_users)
           response.reply("游戏已重置")
+          #测试指令setleader user
         elsif input == "setleader"
           set_leader(arg1)
           response.reply("队长已改变，现任队长为#{get_leader}")
+          #测试指令 agreedone 完成本轮投票
         elsif input == "agreedone"
           get_all_users.each do |member|
             set_user_agreeable(member,0)
@@ -385,6 +389,7 @@ module Lita
             broadcast("#{member}同意该分配方案")
             agree_stage
           end
+          #测试指令missionsuccess 任务成功
         elsif input == "missionsuccess"
           broadcast("投票完成，第#{get_game_status}回合任务成功！")
           mission_completed
@@ -400,6 +405,7 @@ module Lita
             broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
             broadcast("游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
           end
+          #测试指令missionfailed 任务失败
         elsif input == "missionfailed"
           broadcast("投票完成，第#{get_game_status}回合任务失败！")
           game_continue
@@ -413,6 +419,10 @@ module Lita
           else
             broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
             broadcast("游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
+          end
+        elsif input == "showidentity"
+          get_all_users.each do |member|
+            response.reply("#{member}:#{get_identity_of(member)}")
           end
         end
         #set_mission_progress(0)
