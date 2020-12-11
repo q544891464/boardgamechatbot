@@ -361,8 +361,21 @@ module Lita
       #测试用
       def test (response)
         input = response.args.uniq[0]
+        if response.args.uniq[1] != nil
+          arg1 = response.args.uniq[1]
+        end
+        if response.args.uniq[2] != nil
+          arg2 = response.args.uniq[2]
+        end
+
         if input == "changeleader"
           change_leader
+          response.reply("队长已改变，现任队长为#{get_leader}")
+        elsif input == "reset"
+          game_initialize(get_all_users)
+          response.reply("游戏已重置")
+        elsif input == "setleader"
+          set_leader(arg1)
           response.reply("队长已改变，现任队长为#{get_leader}")
         end
         #set_mission_progress(0)
