@@ -181,14 +181,14 @@ module Lita
       #分配人员阶段
       def assign (response)
 
-        if get_game_status == "0" #执行任务者执行任务
+        if get_game_status == "0" #游戏还没开始时输入指令
           response.reply("游戏还未开始")
           raise("游戏还未开始")
         end
 
         user = response.user.mention_name
 
-        if get_leader != user
+        if get_leader != user #如果非队长输入指令
           response.reply("你不是队长，不能指派任务：")
           raise("你不是队长，不能指派任务：")
         end
@@ -538,17 +538,56 @@ module Lita
       # 五个人游戏的情况下 每回合任务需要的进度分别为：2-3-2-3-3
       # 更多人游戏的情况可以之后再做
       def mission_total_progress(game_status)
-        if game_status == "1"
-          "2"
-        elsif game_status == "2"
-          "3"
-        elsif game_status == "3"
-          "2"
-        elsif game_status == "4"
-          "3"
-        elsif game_status == "5"
-          "3"
+        if get_num_of_users == 5
+          if game_status == "1"
+            "2"
+          elsif game_status == "2"
+            "3"
+          elsif game_status == "3"
+            "2"
+          elsif game_status == "4"
+            "3"
+          elsif game_status == "5"
+            "3"
+          end
+        elsif get_num_of_users == 6
+          if game_status == "1"
+            "2"
+          elsif game_status == "2"
+            "3"
+          elsif game_status == "3"
+            "4"
+          elsif game_status == "4"
+            "3"
+          elsif game_status == "5"
+            "4"
+          end
+        elsif get_num_of_users == 7
+          if game_status == "1"
+            "2"
+          elsif game_status == "2"
+            "3"
+          elsif game_status == "3"
+            "3"
+          elsif game_status == "4"
+            "4"
+          elsif game_status == "5"
+            "4"
+          end
+        elsif get_num_of_users >= 8
+          if game_status == "1"
+            "3"
+          elsif game_status == "2"
+            "4"
+          elsif game_status == "3"
+            "4"
+          elsif game_status == "4"
+            "5"
+          elsif game_status == "5"
+            "5"
+          end
         end
+
       end
 
       #投票任务成功 任务进度+1
