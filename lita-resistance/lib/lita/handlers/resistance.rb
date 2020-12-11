@@ -445,7 +445,7 @@ module Lita
           end
         elsif input == "showidentity"
           get_all_users.each do |member|
-            response.reply("#{member}:#{get_identity_of(member)}")
+            response.reply("#{member}:#{translator(get_identity_of(member))}")
           end
         elsif input == "help"
           response.reply("showidentity - 显示全员身份"+"\n"+"missionsuccess - 任务成功"+"\n"+"changeleader - 改变队长"+"\n"+"setleader+[user] - 设置队长"+"\n"+"agreedone - 全员投票同意"+"\n"+"missionfailed - 任务失败")
@@ -804,6 +804,27 @@ module Lita
       def send_message(username,message)
         user = Lita::User.find_by_mention_name(username)
         robot.send_message(Source.new(user: user),message)
+      end
+
+      #汉译器
+      def translator(message)
+        if message == "resistance"
+          "抵抗者"
+        elsif message == "spy"
+          "间谍"
+        elsif message == "commander"
+          "指挥官"
+        elsif message == "false_commander"
+          "假指挥官"
+        elsif message == "blind_spy"
+          "盲探"
+        elsif message == "bodyguard"
+          "守卫"
+        elsif message == "deep_cover"
+          "潜伏者"
+        elsif message == "assassin"
+          "刺客"
+        end
       end
 
       Lita.register_handler(self)
