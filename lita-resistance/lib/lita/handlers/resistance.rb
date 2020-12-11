@@ -276,6 +276,17 @@ module Lita
             set_agree_count(0)  #票数清零
             set_total_count(0)  #票数清零
             broadcast("该任务分配已被半数以上同意，请任务执行者执行任务。指令：mission S|F(任务成功|任务失败)")
+            get_all_users.each do |member|
+              if is_assign(member)
+                user = Lita::User.find_by_mention_name(member)
+                robot.send_message(Source.new(user: user),"你被指派执行任务，请输入指令以执行任务：mission S(成功执行任务)/mission F(搞砸任务)")
+                if get_good_or_bad_of(member) == "good"
+                  robot.send_message(Source.new(user: user),"你是好人一方，只能成功执行任务：mission S(成功执行任务)")
+                elsif get_good_or_bad_of(member) == "bad"
+                  robot.send_message(Source.new(user: user),"你是坏人一方，可以选择搞砸任务，也可以选择成功执行任务：mission S(成功执行任务)/mission F(搞砸任务)")
+                end
+              end
+            end
           else
             #如果没到半数以上同意
             set_agree_status(0) #不可以再投票/投票结束
@@ -729,6 +740,15 @@ module Lita
         set_leader(leader)
       end
 
+      def get_good_or_bad_of(username)
+        identity = get_identity_of(username)
+        if identity == "resistance" or identity == "commander" or identity == "bodyguard"
+          "good"
+        elsif identity == "spy" or identity == "blind_spy" or identity == "false_commander" or identity == "assassin" or identity == "deep_cover"
+          "bad"
+        end
+
+      end
 
       Lita.register_handler(self)
     end
