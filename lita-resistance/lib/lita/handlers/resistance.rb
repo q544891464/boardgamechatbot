@@ -424,6 +424,8 @@ module Lita
           get_all_users.each do |member|
             response.reply("#{member}:#{get_identity_of(member)}")
           end
+        elsif input == "help"
+          response.reply("showidentity - 显示全员身份"+"\n"+"missionsuccess - 任务成功"+"\n"+"changeleader - 改变队长"+"\n"+"setleader+[user] - 设置队长"+"\n"+"agreedone - 全员投票同意"+"\n"+"missionfailed - 任务失败")
         end
         #set_mission_progress(0)
         #set_vote_progress(0)
