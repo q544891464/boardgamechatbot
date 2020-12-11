@@ -314,6 +314,7 @@ module Lita
             raise("你不能执行任务")
           end
 
+
           if get_agree_status == 1  #如果投票仍在进行中
             response.reply("投票未完成，你不能执行任务")
             raise("投票未完成，你不能执行任务")
@@ -327,7 +328,11 @@ module Lita
           if mission_result == "S"
             mission_success
             vote_success
-          else
+          elsif mission_result == "F"
+            if get_good_or_bad_of(user) == "good"
+              response.reply("你是好人，不要故意搞砸任务")
+              raise("你是好人，不要故意搞砸任务")
+            end
             vote_success
           end
 
