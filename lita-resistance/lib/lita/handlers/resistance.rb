@@ -723,7 +723,7 @@ module Lita
       end
 
       def change_leader
-        leader = get_all_users.sample
+        leader = (get_all_users-[get_leader]).sample
         set_leader(leader)
       end
 
