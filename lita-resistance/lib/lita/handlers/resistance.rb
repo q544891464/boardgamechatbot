@@ -6,7 +6,7 @@ module Lita
 
       route(/resistance [NCBSAFD]+ .+/, :play, command: true, help: {'resistance N|[CBSAFD] [users]' => '将间谍/抵抗者分配给你@的玩家'})
 
-      route(/mission S|F/, :mission, command: true, help: {'mission S|F' => '执行任务（成功或失败）.'})
+      route(/mission S|F/, :mission, command: true, help: {'mission S(Success)|F(Fail)' => '执行任务（成功或失败）.'})
 
       route(/assign .+/, :assign, command: true, help: {'assign [users]' => '指派执行任务的玩家'})
 
@@ -14,7 +14,7 @@ module Lita
 
       route(/No/, :disagree, command: true, help: {'No' => '不同意任务分配'})
 
-      route(/test/, :test, command: true, help: {'test' => 'for test'})
+      route(/test .+/, :test, command: true, help: {'test' => 'for test'})
       def help (response)
         response.reply(render_template("help"))
       end
@@ -360,11 +360,16 @@ module Lita
 
       #测试用
       def test (response)
-        set_mission_progress(0)
-        set_vote_progress(0)
-        set_game_status(1)
-        set_completed_mission(0)
-        record_assign("weifanchen1997",0)
+        input = response.args.uniq[0]
+        if input == "changeleader"
+          change_leader
+          response.reply("队长已改变，现任队长为#{get_leader}")
+        end
+        #set_mission_progress(0)
+        #set_vote_progress(0)
+        #set_game_status(1)
+        #set_completed_mission(0)
+        #record_assign("weifanchen1997",0)
         #set_leader("weifanchen1997")
 
         #room_id = response.room.id
@@ -655,6 +660,11 @@ module Lita
       #获取同意投票阶段状态
       def get_agree_status
         Integer(redis.get("agree_status"))
+      end
+
+      def change_leader
+        leader = get_all_users.sample
+        set_leader(leader)
       end
 
 
