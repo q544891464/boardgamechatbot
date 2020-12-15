@@ -225,6 +225,7 @@ module Lita
           record_assign(member,1) #设置他们可以执行任务
         end
 
+        response.reply("队长指派完成！")
         broadcast("指派执行任务的玩家为@#{assign_users.join('@')}")
 
         set_agree_status(1) #开始投票
@@ -353,7 +354,7 @@ module Lita
 
           voter_name = response.user.mention_name
           #todo 测试需要将这行代码注释 目的是一个人可以执行多次任务
-          #record_assign(voter_name,0)
+          record_assign(voter_name,0)
 
           broadcast("@#{voter_name}已投票，已投票/任务总进度:"+get_vote_progress+"/"+mission_total_progress(get_game_status))
           #如果所有投票的人都投成功 则任务成功
@@ -362,11 +363,13 @@ module Lita
             if is_mission_complete
               robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务成功！")
               mission_completed
+              change_mission_visualize(true)
             else
               robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务失败！")
+              change_mission_visualize(false)
             end
-            broadcast("本轮执行任务情况为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
-
+            broadcast("本轮执行任务后总进度为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
+            broadcast(get_mission_visualize)
             game_continue
 
             if is_game_over
@@ -469,7 +472,12 @@ module Lita
           #测试指令missionsuccess 任务成功
         elsif input == "missionsuccess"
           broadcast("投票完成，第#{get_game_status}回合任务成功！")
+          #设置所有人都不能执行任务了
+          get_all_users.each do|member|
+            record_assign(member,0)
+          end
           mission_completed
+          change_mission_visualize(true)
           game_continue
           if is_game_over
             if get_winner == "resistance"
@@ -533,6 +541,7 @@ module Lita
         set_total_count(0)  #设置同意投票阶段总票数
         set_agree_status(0) #设置同意投票阶段状态
         set_has_assassin(0)
+        mission_visualize_initialize
         all_users.each do |member|
           record_assign(member,0) #设置所有人不能执行任务
           redis.lpush("all_users",member) #存所有人的名字
@@ -668,6 +677,7 @@ module Lita
       def mission_completed
         completed_mission = Integer(get_completed_mission)
         completed_mission += 1
+
         set_completed_mission(completed_mission)
       end
 
@@ -903,6 +913,31 @@ module Lita
         elsif message == "assassin"
           "刺客"
         end
+      end
+
+      def mission_visualize_initialize
+        redis.set("mission_visualize","- - - - -")
+      end
+
+      def set_mission_visualize(string)
+        redis.set("mission_visualize",string)
+      end
+
+      def get_mission_visualize
+        redis.get("mission_visualize")
+      end
+
+      #任务进度可视化
+      def change_mission_visualize(is_success)
+        string = get_mission_visualize
+        status = Integer(get_game_status)
+        index = 2*status - 1
+        if is_success
+          string[index] = "⚪"
+        else
+          string[index] = "×"
+        end
+        set_mission_visualize(string)
       end
 
       Lita.register_handler(self)
