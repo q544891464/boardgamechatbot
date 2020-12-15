@@ -90,7 +90,7 @@ module Lita
           spy_specials[:false_commander] = (spies - spy_specials.values).sample
         end
 
-        if @characters.include?('B')
+        if @characters.include?('S')
           spy_specials[:blind_spy] = (spies - spy_specials.values).sample
         end
 
