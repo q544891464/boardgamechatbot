@@ -903,26 +903,26 @@ module Lita
       #汉译器
       def translator(message)
         if message == "resistance"
-          "抵抗者"
+          "抵抗者 :cop:"
         elsif message == "spy"
-          "间谍"
+          "间谍 :male-office-worker:"
         elsif message == "commander"
-          "指挥官"
+          "指挥官 :elf:"
         elsif message == "false_commander"
-          "假指挥官"
+          "假指挥官 :zombie:"
         elsif message == "blind_spy"
-          "盲探"
+          "盲探 :man-facepalming:"
         elsif message == "bodyguard"
-          "守卫"
+          "守卫 :guardsman:"
         elsif message == "deep_cover"
-          "潜伏者"
+          "潜伏者 :male-student:"
         elsif message == "assassin"
-          "刺客"
+          "刺客 :smiling-imp:"
         end
       end
 
       def mission_visualize_initialize
-        redis.set("mission_visualize","- - - - -")
+        redis.set("mission_visualize",":m: :m: :m: :m: :m:")
       end
 
       def set_mission_visualize(string)
@@ -937,11 +937,11 @@ module Lita
       def change_mission_visualize(is_success)
         string = get_mission_visualize
         status = Integer(get_game_status)
-        index = 2*(status - 1)
+        index = 4*(status - 1)+1
         if is_success
-          string[index] = "⚪"
+          string[index] = "o"
         else
-          string[index] = "×"
+          string[index] = "x"
         end
         set_mission_visualize(string)
       end
