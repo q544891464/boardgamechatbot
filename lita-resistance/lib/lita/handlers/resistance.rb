@@ -373,6 +373,7 @@ module Lita
             game_continue
 
             if is_game_over
+
               if get_winner == "resistance"
                 if has_assassin
                   broadcast("抵抗者们完成了三次任务，但是本局有刺客，请等待刺客行动。")
@@ -383,14 +384,16 @@ module Lita
                   end
                 else
                   broadcast("抵抗者们成功完成了三次任务,抵抗者取得了胜利")
-                  game_initialize(get_all_users)
                   show_identity
+                  game_initialize(get_all_users)
+
                 end
 
               elsif get_winner == "spy"
                 broadcast("抵抗者们没能完成三次任务，间谍们取得了胜利")
-                game_initialize(get_all_users)
                 show_identity
+                game_initialize(get_all_users)
+
               end
               #todo 刺客相关逻辑
               #set_game_status(0)
@@ -429,8 +432,8 @@ module Lita
         if get_identity_of(username) == "commander"
           response.reply("恭喜你刺杀成功，@#{username}就是指挥官，间谍方胜利！")
           broadcast("刺客刺杀成功，@#{username}就是指挥官，间谍方胜利！")
-          game_initialize(get_all_users)
           show_identity
+          game_initialize(get_all_users)
         else
           response.reply("你刺杀失败，@#{username}不是指挥官，抵抗者方胜利！")
           broadcast("刺客刺杀失败，@#{username}不是指挥官，抵抗者方胜利！")
@@ -471,24 +474,45 @@ module Lita
           end
           #测试指令missionsuccess 任务成功
         elsif input == "missionsuccess"
-          broadcast("投票完成，第#{get_game_status}回合任务成功！")
+          #broadcast("投票完成，第#{get_game_status}回合任务成功！")
           #设置所有人都不能执行任务了
           get_all_users.each do|member|
             record_assign(member,0)
           end
+          robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务成功！")
           mission_completed
           change_mission_visualize(true)
+          broadcast("本轮执行任务后总进度为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
+          broadcast(get_mission_visualize)
           game_continue
+
           if is_game_over
+
             if get_winner == "resistance"
-              broadcast("成功完成了三次任务,抵抗者取得了胜利")
+              if has_assassin
+                broadcast("抵抗者们完成了三次任务，但是本局有刺客，请等待刺客行动。")
+                get_all_users.each do|member|
+                  if get_identity_of(member) == "assassin"
+                    send_message(member,"你是本局的刺客，现在轮到你登场了，请你选择你认为的指挥官进行刺杀，指令：assassinate [user]")
+                  end
+                end
+              else
+                broadcast("抵抗者们成功完成了三次任务,抵抗者取得了胜利")
+                show_identity
+                game_initialize(get_all_users)
+
+              end
+
             elsif get_winner == "spy"
               broadcast("抵抗者们没能完成三次任务，间谍们取得了胜利")
+              show_identity
+              game_initialize(get_all_users)
+
             end
-            set_game_status(0)
+            #todo 刺客相关逻辑
+            #set_game_status(0)
           else
             broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
-            broadcast(get_mission_visualize)
             broadcast("游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
             send_message(get_leader,"你是队长，请选出#{mission_total_progress(get_game_status)}人执行任务：assign [users]")
           end
@@ -497,19 +521,38 @@ module Lita
           get_all_users.each do|member|
             record_assign(member,0)
           end
-          broadcast("投票完成，第#{get_game_status}回合任务失败！")
+          robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务失败！")
           change_mission_visualize(false)
+          broadcast("本轮执行任务后总进度为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
+          broadcast(get_mission_visualize)
           game_continue
           if is_game_over
+
             if get_winner == "resistance"
-              broadcast("成功完成了三次任务,抵抗者取得了胜利")
+              if has_assassin
+                broadcast("抵抗者们完成了三次任务，但是本局有刺客，请等待刺客行动。")
+                get_all_users.each do|member|
+                  if get_identity_of(member) == "assassin"
+                    send_message(member,"你是本局的刺客，现在轮到你登场了，请你选择你认为的指挥官进行刺杀，指令：assassinate [user]")
+                  end
+                end
+              else
+                broadcast("抵抗者们成功完成了三次任务,抵抗者取得了胜利")
+                show_identity
+                game_initialize(get_all_users)
+
+              end
+
             elsif get_winner == "spy"
               broadcast("抵抗者们没能完成三次任务，间谍们取得了胜利")
+              show_identity
+              game_initialize(get_all_users)
+
             end
-            set_game_status(0)
+            #todo 刺客相关逻辑
+            #set_game_status(0)
           else
             broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
-            broadcast(get_mission_visualize)
             broadcast("游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
             send_message(get_leader,"你是队长，请选出#{mission_total_progress(get_game_status)}人执行任务：assign [users]")
           end
