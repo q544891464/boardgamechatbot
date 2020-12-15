@@ -96,6 +96,7 @@ module Lita
 
         if @characters.include?('A')
           spy_specials[:assassin] = (spies - spy_specials.values).sample
+          set_has_assassin(1)
         end
 
         spies.each do |member|
@@ -370,9 +371,23 @@ module Lita
 
             if is_game_over
               if get_winner == "resistance"
-                broadcast("成功完成了三次任务,抵抗者取得了胜利")
+                if has_assassin
+                  broadcast("抵抗者们完成了三次任务，但是本局有刺客，请等待刺客行动。")
+                  get_all_users.each do|member|
+                    if get_identity_of(member) == "assassin"
+                      send_message(member,"你是本局的刺客，现在轮到你登场了，请你选择你认为的指挥官进行刺杀，指令：assassinate [user]")
+                    end
+                  end
+                else
+                  broadcast("抵抗者们成功完成了三次任务,抵抗者取得了胜利")
+                  game_initialize(get_all_users)
+                  show_identity
+                end
+
               elsif get_winner == "spy"
                 broadcast("抵抗者们没能完成三次任务，间谍们取得了胜利")
+                game_initialize(get_all_users)
+                show_identity
               end
               #todo 刺客相关逻辑
               #set_game_status(0)
@@ -411,9 +426,13 @@ module Lita
         if get_identity_of(username) == "commander"
           response.reply("恭喜你刺杀成功，@#{username}就是指挥官，间谍方胜利！")
           broadcast("刺客刺杀成功，@#{username}就是指挥官，间谍方胜利！")
+          game_initialize(get_all_users)
+          show_identity
         else
           response.reply("你刺杀失败，@#{username}不是指挥官，抵抗者方胜利！")
           broadcast("刺客刺杀失败，@#{username}不是指挥官，抵抗者方胜利！")
+          game_initialize(get_all_users)
+          show_identity
         end
       end
       #测试用
@@ -513,6 +532,7 @@ module Lita
         set_agree_count(0)  #设置同意投票阶段同意票数
         set_total_count(0)  #设置同意投票阶段总票数
         set_agree_status(0) #设置同意投票阶段状态
+        set_has_assassin(0)
         all_users.each do |member|
           record_assign(member,0) #设置所有人不能执行任务
           redis.lpush("all_users",member) #存所有人的名字
@@ -841,6 +861,27 @@ module Lita
       def send_message(username,message)
         user = Lita::User.find_by_mention_name(username)
         robot.send_message(Source.new(user: user),message)
+      end
+
+      def show_identity
+        broadcast("本场所有人的身份如下：")
+        get_all_users.each do |member|
+          broadcast("#{member}:#{translator(get_identity_of(member))}")
+        end
+      end
+
+      #设置这局是否有刺客 0没有 1有
+      def set_has_assassin(status)
+        redis.set("has_assassin",status)
+      end
+      #这局是否有刺客 0没有 1有
+      def has_assassin
+        status = Integer(redis.get("has_assassin"))
+        if status == 0
+          false
+        elsif status == 1
+          true
+        end
       end
 
       #汉译器
