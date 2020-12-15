@@ -1,30 +1,24 @@
 
-<%= @starter %> has started game ID #<%= @game_id %> of Resistance.
+<%= @starter %> 开启了游戏ID为 #<%= @game_id %> 的抵抗组织游戏。
 
 <% if @member == @spy_specials[:blind_spy] %>
-You are the Blind Spy, a member of the Spies. Unfortunately, you don't know the other spies, and they don't know you.
 你是一个盲探，间谍中的一员。不幸的是，你不认识其他间谍，他们也不认识你。
 <% else %>
 <% if @member == @spy_specials[:deep_cover] %>
-You are the Deep Cover, a member of the Spies.
 你是潜伏者，间谍中的一员。
 <% elsif @member == @spy_specials[:false_commander] %>
-You are the False Commander, a member of the Spies.
 你是假指挥官，间谍中的一员。
 <% elsif @member == @spy_specials[:assassin] %>
-You are the Assassin, a member of the Spies.
 你是刺客，间谍中的一员。
 <% else %>
-You are a regular member of the Spies.
 你是一名普通间谍。
 <% end %>
 
 <% if @other_spies.length == 1 %>
-  The other spy is 另一位间谍是 @<%= @other_spies[0] %>.
+  另一位间谍是 @<%= @other_spies[0] %>.
 <% elsif @other_spies.length > 1 %>
-  The other spies are 其他间谍为 @<%= @other_spies.join(' @') %>.
+  其他间谍为 @<%= @other_spies.join(' @') %>.
 <% else %>
-  The other spy is invisible to you.
   你看不到其他间谍。
 <% end %>
 <% end %>

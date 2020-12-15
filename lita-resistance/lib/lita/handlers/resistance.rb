@@ -14,7 +14,11 @@ module Lita
 
       route(/No/, :disagree, command: true, help: {'No' => '不同意任务分配'})
 
+      route(/assassinate .+/, :assassinate, command: true, help: {'assassinate [user]' => '刺杀你认为的指挥官'})
+
       route(/test .+/, :test, command: true, help: {'test' => 'for test'})
+
+
       def help (response)
         response.reply(render_template("help"))
       end
@@ -205,6 +209,7 @@ module Lita
         normalize_input!(assign_users)
 
         # Ensure all people are users.
+        # todo:确定所有人都是这局游戏的玩家
         unknown_users = []
         assign_users.each do |username|
           user = Lita::User.find_by_mention_name(username)
@@ -307,7 +312,7 @@ module Lita
         end
       end
 
-      #执行任务阶段
+      #执行任务阶段assassin
       def mission (response)
         if get_game_status == "0" #执行任务者执行任务
           response.reply("游戏还未开始")
@@ -379,6 +384,37 @@ module Lita
         end
       end
 
+      def assassinate(response)
+        user = response.user.mention_name
+        if get_identity_of(user) != "assassin"
+          response.reply("你不是刺客。")
+          raise("你不是刺客。")
+        end
+        if is_game_over
+          if get_winner == "resistance"
+            broadcast("刺客正在进行刺杀。。。")
+          else
+            response.reply("你已经获胜了。")
+            raise("你已经获胜了。")
+          end
+        else
+          response.reply("游戏还没结束。")
+          raise("游戏还没结束。")
+        end
+
+        username = response.args.uniq[0]
+        #todo 对输入的用户作检查
+        if username[0] == '@'
+          username = username[1, username.length-1]
+        end
+        if get_identity_of(username) == "commander"
+          response.reply("恭喜你刺杀成功，@#{username}就是指挥官，间谍方胜利！")
+          broadcast("刺客刺杀成功，@#{username}就是指挥官，间谍方胜利！")
+        else
+          response.reply("你刺杀失败，@#{username}不是指挥官，抵抗者方胜利！")
+          broadcast("刺客刺杀失败，@#{username}不是指挥官，抵抗者方胜利！")
+        end
+      end
       #测试用
       def test (response)
         input = response.args.uniq[0]
