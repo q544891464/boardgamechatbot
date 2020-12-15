@@ -488,12 +488,17 @@ module Lita
             set_game_status(0)
           else
             broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
+            broadcast(get_mission_visualize)
             broadcast("游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
             send_message(get_leader,"你是队长，请选出#{mission_total_progress(get_game_status)}人执行任务：assign [users]")
           end
           #测试指令missionfailed 任务失败
         elsif input == "missionfailed"
+          get_all_users.each do|member|
+            record_assign(member,0)
+          end
           broadcast("投票完成，第#{get_game_status}回合任务失败！")
+          change_mission_visualize(false)
           game_continue
           if is_game_over
             if get_winner == "resistance"
@@ -504,6 +509,7 @@ module Lita
             set_game_status(0)
           else
             broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
+            broadcast(get_mission_visualize)
             broadcast("游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
             send_message(get_leader,"你是队长，请选出#{mission_total_progress(get_game_status)}人执行任务：assign [users]")
           end
@@ -931,7 +937,7 @@ module Lita
       def change_mission_visualize(is_success)
         string = get_mission_visualize
         status = Integer(get_game_status)
-        index = 2*status - 1
+        index = 2*(status - 1)
         if is_success
           string[index] = "⚪"
         else
