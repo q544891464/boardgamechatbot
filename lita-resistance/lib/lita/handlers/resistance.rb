@@ -6,7 +6,7 @@ module Lita
 
       route(/resistance [NCBSAFD]+ .+/, :play, command: true, help: {'resistance N|[CBSAFD] [users]' => '将间谍/抵抗者分配给你@的玩家'})
 
-      route(/mission S|F/, :mission, command: true, help: {'mission S(Success)|F(Fail)' => '执行任务（成功或失败）.'})
+      route(/mission S|mission F/, :mission, command: true, help: {'mission S(Success)|F(Fail)' => '执行任务（成功或失败）.'})
 
       route(/assign .+/, :assign, command: true, help: {'assign [users]' => '指派执行任务的玩家'})
 
@@ -374,7 +374,8 @@ module Lita
               elsif get_winner == "spy"
                 broadcast("抵抗者们没能完成三次任务，间谍们取得了胜利")
               end
-              set_game_status(0)
+              #todo 刺客相关逻辑
+              #set_game_status(0)
             else
               broadcast("进入下一回合,当前为第#{get_game_status}回合,已完成任务情况为#{get_completed_mission}/3")
               broadcast("游戏阶段:第#{get_game_status}回合，本回合需要#{mission_total_progress(get_game_status)}人执行任务，请队长选出合适人选，玩家们讨论并投票 指令：assign [users]")
