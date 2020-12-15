@@ -368,7 +368,7 @@ module Lita
               robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务失败！")
               change_mission_visualize(false)
             end
-            #broadcast("本轮执行任务后总进度为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
+            broadcast("本轮执行任务情况为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
             broadcast(get_mission_visualize)
             game_continue
 
@@ -482,7 +482,7 @@ module Lita
           robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务成功！")
           mission_completed
           change_mission_visualize(true)
-          #broadcast("本轮执行任务后总进度为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
+          broadcast("本轮执行任务情况为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
           broadcast(get_mission_visualize)
           game_continue
 
@@ -523,7 +523,7 @@ module Lita
           end
           robot.send_message(Source.new(room: get_room),"投票完成，第#{get_game_status}回合任务失败！")
           change_mission_visualize(false)
-          #broadcast("本轮执行任务后总进度为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
+          broadcast("本轮执行任务情况为：成功/总数  #{get_mission_progress}/#{mission_total_progress(get_game_status)}")
           broadcast(get_mission_visualize)
           game_continue
           if is_game_over
